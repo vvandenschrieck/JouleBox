@@ -1,0 +1,48 @@
+\cardfrontstyle{headings}
+\cardbackstyle{plain}
+\renewcommand{\familydefault}{\sfdefault} % Ecrire en sans serif par défaut
+
+\pgfkeys{/pgf/number format/precision=2}
+
+\pgfmathparse{\textScale*10}
+\setlength{\cardmargin}{\pgfmathresult pt}
+
+
+% CREATION DE CARTE
+\newcommand{\card}[3]{%
+\begin{flashcard}[\scalefont{\textScale}Joule Box]{\includegraphics[height=0.6\linewidth]{#1}\vfill{\scalefont{\textScale}#2}}
+  \PowerToBikes{#3}
+\end{flashcard}%
+}
+
+
+% FONCTION POWERTOBIKE
+\newcommand{\PowerToBikes}[1]
+{
+\xdef\P{#1}
+\xdef\nMax{100}
+\pgfmathparse{int(ceil(\P/\etalon))}
+\xdef\nCyclistes{\pgfmathresult}
+\pgfmathparse{min(\nCyclistes,\nMax)}
+\xdef\nCyclistesDessines{\pgfmathresult}
+
+\pgfmathparse{ceil(sqrt(\nCyclistesDessines))}
+\xdef\numLine{\pgfmathresult}
+\pgfmathparse{0.8/\numLine}
+\xdef\s{\pgfmathresult}
+
+\foreach \n in{1,...,\nCyclistesDessines}{%
+	\pgfmathrandominteger{\i}{1}{4}%
+	\includegraphics[width=\s\linewidth]{content/cycliste_\i}%
+	\pgfmathparse{\n < \nCyclistesDessines}%
+	\ifthenelse{\pgfmathresult>0}{ \hfil }{}%
+	}%
+\pgfmathparse{\nCyclistes > \nMax}
+\ifthenelse{\pgfmathresult>0}{\pgfmathparse{int(\nCyclistes-\nMax)}\\[1ex]\Large\scalefont{\textScale}$\boldsymbol{+\,\pgfmathresult}$}{}
+\vfill
+% Affichage puissance et nombre de cyclistes
+{\large\it\scalefont{\textScale}#1 Watt}\\
+\pgfmathparse{\nCyclistes > 1}
+\ifthenelse{\pgfmathresult>0}{\Large\scalefont{\textScale}$\boldsymbol{\nCyclistes}$ {\bf cyclistes} de $\age$ ans}
+{\Large\scalefont{\textScale}$\boldsymbol{\nCyclistes}$ {\bf cycliste} de $\age$ ans}
+}
