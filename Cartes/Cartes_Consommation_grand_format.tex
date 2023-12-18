@@ -2,9 +2,6 @@
 \ProvidesFile{Cartes_Consommation_50W.tex}
 \documentclass[grandes_cartes,grid]{flashcards}
 
-
-\def\etalon{40} % Puissance de l'enfant référence
-\def\age{8} % Age de l'enfant référence
 \def\textScale{3} % Echelle du texte : 1 lorsque trois cartes sur une largeur de A4
 
 \input{format/packages}
@@ -12,6 +9,12 @@
 
 \begin{document}
 
+\def\etalon{40} % Puissance de l'enfant référence
+\def\age{9} % Age de l'enfant référence
+\input{content/cartes}
+
+\def\etalon{50} % Puissance de l'enfant référence
+\def\age{11} % Age de l'enfant référence
 \input{content/cartes}
 
 \end{document}

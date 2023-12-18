@@ -7,6 +7,11 @@
 \pgfmathparse{\textScale*10}
 \setlength{\cardmargin}{\pgfmathresult pt}
 
+\newcommand\pgfmathparseFPU[1]{\begingroup% % Nécessaire pour aller au dela de 16000
+\pgfkeys{/pgf/fpu,/pgf/fpu/output format=fixed}%
+\pgfmathparse{#1}%
+\pgfmathsmuggle\pgfmathresult\endgroup}%
+
 
 % CREATION DE CARTE
 \newcommand{\card}[3]{%
@@ -21,28 +26,47 @@
 {
 \xdef\P{#1}
 \xdef\nMax{100}
-\pgfmathparse{int(ceil(\P/\etalon))}
+\pgfmathparseFPU{ceil(\P/\etalon)}
+\pgfmathparse{int(\pgfmathresult)}
 \xdef\nCyclistes{\pgfmathresult}
-\pgfmathparse{min(\nCyclistes,\nMax)}
+\pgfmathparse{int(min(\nCyclistes,\nMax))}
 \xdef\nCyclistesDessines{\pgfmathresult}
 
-\pgfmathparse{ceil(sqrt(\nCyclistesDessines))}
+\pgfmathparseFPU{ceil(sqrt(\nCyclistesDessines))}
 \xdef\numLine{\pgfmathresult}
-\pgfmathparse{0.8/\numLine}
+\pgfmathparseFPU{0.8/\numLine}
 \xdef\s{\pgfmathresult}
 
 \foreach \n in{1,...,\nCyclistesDessines}{%
 	\pgfmathrandominteger{\i}{1}{4}%
 	\includegraphics[width=\s\linewidth]{content/cycliste_\i}%
-	\pgfmathparse{\n < \nCyclistesDessines}%
-	\ifthenelse{\pgfmathresult>0}{ \hfil }{}%
+	\pgfmathparse{int(\n < \nCyclistesDessines)}%
+	\xdef\r{\pgfmathresult}
+	\ifnum\r=1{\hfil }%
+	\else%
+	\fi%
 	}%
-\pgfmathparse{\nCyclistes > \nMax}
-\ifthenelse{\pgfmathresult>0}{\pgfmathparse{int(\nCyclistes-\nMax)}\\[1ex]\Large\scalefont{\textScale}$\boldsymbol{+\,\pgfmathresult}$}{}
+	
 \vfill
+
+\pgfmathparse{int(\nCyclistes > \nMax)}
+\xdef\rbis{\pgfmathresult}
+\ifnum\rbis=1
+	{\pgfmathparse{int(\nCyclistes-\nMax)}
+	\Large\scalefont{\textScale}$\boldsymbol{+\,\pgfmathresult}$}
+\else
+\fi%
+
+\vfill
+
 % Affichage puissance et nombre de cyclistes
-{\large\it\scalefont{\textScale}#1 Watt}\\
-\pgfmathparse{\nCyclistes > 1}
-\ifthenelse{\pgfmathresult>0}{\Large\scalefont{\textScale}$\boldsymbol{\nCyclistes}$ {\bf cyclistes} de $\age$ ans}
-{\Large\scalefont{\textScale}$\boldsymbol{\nCyclistes}$ {\bf cycliste} de $\age$ ans}
+\pgfmathparse{int(\nCyclistes > 1)}
+\xdef\rter{\pgfmathresult}
+\ifnum\rter=1
+	\Large\scalefont{\textScale}$\boldsymbol{\nCyclistes}$ {\bf cyclistes} 
+\else
+	\Large\scalefont{\textScale}$\boldsymbol{\nCyclistes}$ {\bf cycliste} 
+\fi
+de $\age$ ans\\
+{\large\it\scalefont{\textScale}#1 Watt}
 }
