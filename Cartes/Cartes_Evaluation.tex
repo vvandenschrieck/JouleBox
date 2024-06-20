@@ -1,0 +1,35 @@
+\NeedsTeXFormat{LaTeX2e}[1996/12/01]
+\ProvidesFile{Cartes_Consommation_petit_format.tex}
+\documentclass[moyennes_cartes,grid]{flashcards}
+
+\def\textScale{1} 	% Echelle du texte : 1 lorsque trois cartes sur une largeur de A4
+
+\input{format/packages}
+\input{format/commands}
+
+\begin{document}
+
+\cardfrontfoot{\includegraphics[width=4cm]{content/logo_horizontal.png}}
+\renewcommand{\arraystretch}{2}
+\foreach \n in{1,...,24}{%
+\pgfmathrandominteger{\i}{1}{4}%
+\begin{flashcard}[Joule Box]{\includegraphics[width=0.4\textwidth]{content/cycliste_\i}}
+\begin{center}{\bf \'Evaluation de l'activité}\end{center}
+  \vfill
+  \begin{tabular}{p{5cm} c c c c c}
+  & \faFrown \faFrown & \faFrown & \faMeh & \faSmile & \faSmile\faSmile \\
+  \hline
+  Je me suis amusé$\cdot$e & & & & &\\
+  \hline
+  J'ai appris des nouvelles choses & & & & &\\
+  \hline
+  Je conseille cette activité à mes ami$\cdot$e$\cdot$s & & & & &\\
+  \hline
+  \end{tabular}
+  \vfill
+\end{flashcard}%
+	}%
+
+\end{document}
+
+\endinput
