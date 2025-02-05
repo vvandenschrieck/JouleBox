@@ -90,7 +90,7 @@ speed = 0
 speed_rpm = 0
 wheel_circ = 0.6985*3.1416  # circonférence de ma roue x 24/27.5 pour les roues d'enfant
 wheel_circ = 1.85  # circonférence de ma roue x 24/27.5 pour les roues d'enfant
-debounce_time = 78000  
+debounce_time = 100000  
 
 
 i_sum = 0
@@ -139,7 +139,7 @@ def ls_interrupt(timer):
         else:
             # speed_rpm = 60*1e6/T_rotation
             speed = wheel_circ/(T_rotation/1e6)*3.6  #km/h
-            p_in = 1.83*speed+ 0.112*speed**2
+            p_in = 2.47862037*speed+ 0.10765438*speed**2
 
 
     i_dc = i_sum/int_count
