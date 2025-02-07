@@ -90,7 +90,7 @@ speed = 0
 speed_rpm = 0
 wheel_circ = 0.6985*3.1416  # circonférence de ma roue x 24/27.5 pour les roues d'enfant
 wheel_circ = 1.85  # circonférence de ma roue x 24/27.5 pour les roues d'enfant
-debounce_time = 100000  
+debounce_time = 75000  
 
 
 i_sum = 0
@@ -102,16 +102,26 @@ i_rms = 0
 p_out = 0
 p_in = 0
 
-
-
+since_last_turn = 0
+debounce = 1
 
 energy = max_bat #Wh
 
 def hs_interrupt(timer):
-    global int_count, i_sum, i_sum_of_squares, i_min, i_max
+    global int_count, i_sum, i_sum_of_squares, i_min, i_max, since_last_turn, debounce
     i_inst = get_current_u16()
     i_sum += i_inst
     i_sum_of_squares += i_inst**2    
+
+    if reed_switch_pin.value():
+        since_last_turn = 0
+    else:
+        since_last_turn += 1
+        if since_last_turn>20:
+            debounce = 1
+
+
+
 
     # if i_inst>i_max:
     #     i1_max = i_inst
@@ -144,7 +154,7 @@ def ls_interrupt(timer):
 
     i_dc = i_sum/int_count
     #lcd.move_to(0,1)
-    print("{}     ".format(int_count))
+    #print("{}     ".format(int_count))
 
     i_av_sum_of_squares = i_sum_of_squares/int_count
     int_count = 0
@@ -165,20 +175,31 @@ def ls_interrupt(timer):
         power_on_off(1)
 
 def reed_switch_callback(pin):
-    global last_time, T_rotation
-    print("============================================Rotation detected")
+    global last_time, T_rotation,since_last_turn, debounce
     current_time_cb = utime.ticks_us()
+
+    # print("============================================Rotation detected")
+    # print((current_time_cb - last_time)/1000)
+    # print(since_last_turn)
+    
     
     # Check if enough time has passed since the last trigger
-    if ((current_time_cb - last_time) >= debounce_time):
+    #if ((current_time_cb - last_time) >= debounce_time):
+    if (debounce) and (reed_switch_pin.value()):
         
         T_rotation = current_time_cb - last_time
         last_time = current_time_cb
+        debounce = 0
+        # print("=======================ok")
+    else:
+        
+        # print("=======================not ok")
+        pass
 
     if (current_time_cb<last_time):
         last_time = current_time_cb
 
-    
+    # print("=======================================================")
 
 
 # Pin configuration
@@ -206,12 +227,12 @@ try:
         rad_gauge.set_powers(p_in,p_out)
         print_7_seg(p_out_num_disp,p_out)
         print_7_seg(p_in_num_disp,p_in)
-        print_7_seg(energy_num_disp,energy)
+        print_7_seg(energy_num_disp,speed)
         lin_gauge.set_value(energy/max_bat*100)
-        print("OUT : {} W   {}{}{}".format(p_out,btn1.value(),btn2.value(),btn3.value()))
-        print("IN : {} W {} Wh  ".format(p_in,energy))
-        print("SPEED {} kph".format(speed))
-        print("T     {} s".format(T_rotation))
+        # print("OUT : {} W   {}{}{}".format(p_out,btn1.value(),btn2.value(),btn3.value()))
+        # print("IN : {} W {} Wh  ".format(p_in,energy))
+        # print("SPEED {} kph".format(speed))
+        # print("T     {} s".format(T_rotation))
         if btn1.value()==0 :
             display_backlight = not display_backlight
             if display_backlight:
@@ -229,8 +250,8 @@ try:
                 energy = increase_to
                 max_bat = energy
             
-        lcd.move_to(0,0)
-        lcd.putstr("reste:{:4.2f} Wh".format(energy))
+        lcd.move_to(0,0);
+        lcd.putstr("reste:{:4.2f} Wh".format(energy));
 
         utime.sleep(1)
         
